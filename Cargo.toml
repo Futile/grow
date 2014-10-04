@@ -1,0 +1,5 @@
+[package]
+
+name = "grow"
+version = "0.0.1"
+authors = ["Felix Rath <felixr@archlinux.info>", "Felix Dietze <felix@beerleader.net>"]
