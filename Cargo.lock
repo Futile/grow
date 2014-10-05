@@ -1,4 +1,12 @@
 [root]
 name = "grow"
 version = "0.0.1"
+dependencies = [
+ "sdl2 0.0.1 (git+https://github.com/AngryLawyer/rust-sdl2.git#c2ee9627b4c7a4991557702d1fcabb177ce2e9dc)",
+]
+
+[[package]]
+name = "sdl2"
+version = "0.0.1"
+source = "git+https://github.com/AngryLawyer/rust-sdl2.git#c2ee9627b4c7a4991557702d1fcabb177ce2e9dc"
 
