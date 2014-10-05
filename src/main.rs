@@ -2,7 +2,8 @@ extern crate sdl2;
 extern crate native;
 
 use sdl2::video::{Window, PosCentered, OpenGL};
-use sdl2::event::{QuitEvent, poll_event};
+use sdl2::event::{QuitEvent, poll_event, NoEvent, KeyDownEvent};
+use sdl2::keycode::{EscapeKey};
 use sdl2::rect::{Rect};
 
 fn main() {
@@ -44,14 +45,17 @@ fn main() {
         Err(err) => fail!("failed to draw rect: {}", err) 
     };
 
-    // Swap our buffer for the present buffer, displaying it.
-    let _ = renderer.present();
-
     // loop until we receive a QuitEvent
     'event : loop {
+        // Swap our buffer for the present buffer, displaying it.
+        let _ = renderer.present();
+
         match poll_event() {
-            QuitEvent(_) => break 'event,
-            _            => continue
+              QuitEvent(_)
+            | KeyDownEvent(_, _, EscapeKey, _, _) => break 'event,
+            NoEvent                               => continue,
+            // m                                     => println!("{}", m),
+            _ => continue,
         }
     }
 
