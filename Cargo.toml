@@ -1,9 +1,13 @@
 [package]
-
 name = "grow"
 version = "0.0.1"
 authors = ["Felix Rath <felixr@archlinux.info>", "Felix Dietze <felix@beerleader.net>"]
 
-[dependencies.sdl2]
+# [dependencies.nphysics2df32]
+# git = "https://github.com/sebcrozet/nphysics"
 
-git = "https://github.com/AngryLawyer/rust-sdl2.git"
+[dependencies.glium]
+git = "https://github.com/futile/glium"
+
+
+

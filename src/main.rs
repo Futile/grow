@@ -1,100 +1,112 @@
-extern crate sdl2;
-extern crate native;
-extern crate time;
-extern crate num;
+#![feature(phase)]
 
-use sdl2::video::{Window, PosCentered, OpenGL};
-use sdl2::event::{QuitEvent, poll_event, KeyDownEvent};
-use sdl2::keycode::{EscapeKey};
-use sdl2::rect::{Rect, Point};
-use time::{get_time, Timespec};
-use std::io::timer::{sleep};
-use std::time::Duration;
+#[phase(plugin)]
+extern crate glium_macros;
+
+extern crate glutin;
+extern crate glium;
+
+use glium::Surface;
 
 fn main() {
-    let renderer = Renderer::init(get_time());
+    use glium::DisplayBuild;
 
-    let mut last_frame = get_time();
-    let time_per_frame = Duration::microseconds(1000000 / 60);
-        
-    // loop until we receive a QuitEvent
-    'gameloop : loop {
-        //println!("{}", 1000.0 / ((get_time() - last_frame).num_milliseconds() as f64));
-        
-        //let elapsed = get_time() - last_frame;
-        sleep( last_frame + time_per_frame - get_time() );
-        last_frame = get_time();
-        
-        renderer.draw(last_frame);
-        
-        match poll_event() {
-              QuitEvent(_)
-            | KeyDownEvent(_, _, EscapeKey, _, _) => break 'gameloop,
-            _                                     => continue,
+    // building the display, ie. the main object
+    let display = glutin::WindowBuilder::new()
+        .build_glium()
+        .unwrap();
+
+    // building the vertex buffer, which contains all the vertices that we will draw
+    let vertex_buffer = {
+        #[vertex_format]
+        struct Vertex {
+            position: [f32, ..2],
+            color: [f32, ..3],
         }
-    }
 
-    sdl2::quit();
-}
+        glium::VertexBuffer::new(&display, 
+            vec![
+                Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
+                Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
+                Vertex { position: [ 0.5, -0.5], color: [1.0, 0.0, 0.0] },
+            ]
+        )
+    };
 
-struct Renderer {
-    renderer : sdl2::render::Renderer<Window>,
-    start_time : Timespec,
-}
+    // building the index buffer
+    let index_buffer = glium::IndexBuffer::new(&display,
+        glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
 
-impl Renderer {
+    // compiling shaders and linking them together
+    let program = glium::Program::new(&display,
+        // vertex shader
+        "
+            #version 110
 
-    fn init(start_time : Timespec) -> Renderer {
-        // start sdl2 with everything
-        sdl2::init(sdl2::InitEverything);
+            uniform mat4 matrix;
 
-        // Create a window
-        let window  = match Window::new("grow", PosCentered, PosCentered, 640, 480, OpenGL) {
-            Ok(window) => window,
-            Err(err)   => fail!("failed to create window: {}", err)
-        };
+            attribute vec2 position;
+            attribute vec3 color;
 
-        // Create a rendering context
-        let renderer = match sdl2::render::Renderer::from_window(window, sdl2::render::DriverAuto, sdl2::render::Accelerated) {
-            Ok(renderer) => renderer,
-            Err(err) => fail!("failed to create renderer: {}", err)
-        };
+            varying vec3 vColor;
 
-        Renderer{renderer:renderer, start_time: start_time}
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                vColor = color;
+            }
+        ",
+
+        // fragment shader
+        "
+            #version 110
+            varying vec3 vColor;
+
+            void main() {
+                gl_FragColor = vec4(vColor, 1.0);
+            }
+        ",
+
+        // geometry shader
+        None)
+        .unwrap();
+
+    // creating the uniforms structure
+    #[uniforms]
+    struct Uniforms {
+        matrix: [[f32, ..4], ..4],
     }
     
-    fn elapsed(&self, last_frame : Timespec) -> Duration {last_frame - self.start_time}
+    // the main loop
+    // each cycle will draw once
+    'main: loop {
+        use std::io::timer;
+        use std::time::Duration;
 
-    fn draw(&self, last_frame : Timespec) {
-            // Set the drawing color to a light blue.
-            let _ = self.renderer.set_draw_color(sdl2::pixels::RGB(101, 208, 246));
+        // building the uniforms
+        let uniforms = Uniforms {
+            matrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0f32]
+            ]
+        };
 
-            // Clear the buffer, using the light blue color set above.
-            let _ = self.renderer.clear();
+        // drawing a frame
+        let mut target = display.draw();
+        target.clear_color(0.0, 0.0, 0.0, 0.0);
+        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
+        target.finish();
 
-            // Set the drawing color to a darker blue.
-            let _ = self.renderer.set_draw_color(sdl2::pixels::RGB(0, 153, 204));
+        // sleeping for some time in order not to use up too much CPU
+        timer::sleep(Duration::milliseconds(17));
 
-            let millis = self.elapsed(last_frame).num_milliseconds() as f64;
-            let angle = millis / 1000f64;
-            let r = 200f64;
-            let a = Point{ x: ((angle*0.5).cos()*r+r) as i32, y: ((angle*0.5).sin()*r+r) as i32};
-            let b = Point{ x: (-angle.cos()*r+r) as i32, y: (-angle.sin()*r+r) as i32};
-            
-            let _ = match self.renderer.draw_line(a,b) {
-                Ok(_) => {},
-                Err(err) => fail!("failed to draw line: {}", err)
-            };
-            
-            // Create centered Rect, draw the outline of the Rect in our dark blue color.
-            let border_rect = Rect::new(320-64, 240-64, 128, 128);
-            let _ = match self.renderer.draw_rect(&border_rect) {
-                Ok(_)    => {},
-                Err(err) => fail!("failed to draw rect: {}", err)
-            };
-            
-            // Swap our buffer for the present buffer, displaying it.
-            let _ = self.renderer.present();
+        // polling and handling the events received by the window
+        for event in display.poll_events().into_iter() {
+            match event {
+                glutin::Event::Closed => break 'main,
+                _ => ()
+            }
+        }
     }
 }
-
