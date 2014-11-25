@@ -6,7 +6,12 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
+extern crate time;
+
 use glium::Surface;
+use std::num::FloatMath;
+
+use time::get_time;
 
 fn main() {
     use glium::DisplayBuild;
@@ -51,7 +56,7 @@ fn main() {
             varying vec3 vColor;
 
             void main() {
-                gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                gl_Position = matrix * vec4(position, 0.0, 1.0);
                 vColor = color;
             }
         ",
@@ -75,18 +80,22 @@ fn main() {
     struct Uniforms {
         matrix: [[f32, ..4], ..4],
     }
-    
+
+    let start_time = get_time();
+
     // the main loop
     // each cycle will draw once
     'main: loop {
         use std::io::timer;
         use std::time::Duration;
 
+        let angle = (get_time() - start_time).num_milliseconds() as f32 / 2000f32;
+
         // building the uniforms
         let uniforms = Uniforms {
             matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
+                [angle.cos(), -angle.sin(), 0.0, 0.0],
+                [angle.sin(), angle.cos(), 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0f32]
             ]

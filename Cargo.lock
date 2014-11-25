@@ -4,6 +4,7 @@ version = "0.0.1"
 dependencies = [
  "glium 0.0.2 (git+https://github.com/tomaka/glium)",
  "glium_macros 0.0.1 (git+https://github.com/tomaka/glium)",
+ "time 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -43,6 +44,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "gcc"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "gl_common"
 version = "0.0.1"
 source = "git+http://github.com/bjz/gl-rs#157de977e025d3069f4219c713b071bacf8ed2a5"
@@ -60,7 +66,7 @@ dependencies = [
 [[package]]
 name = "glium"
 version = "0.0.2"
-source = "git+https://github.com/tomaka/glium#02b3c6b5ece995592eea8f4df227e0ec6e520d57"
+source = "git+https://github.com/tomaka/glium#32f6372571296b04f067e9fc8d030681940aad3c"
 dependencies = [
  "cgmath 0.0.1 (git+https://github.com/bjz/cgmath-rs)",
  "compile_msg 0.1.1 (git+https://github.com/huonw/compile_msg)",
@@ -72,7 +78,7 @@ dependencies = [
 [[package]]
 name = "glium_macros"
 version = "0.0.1"
-source = "git+https://github.com/tomaka/glium#02b3c6b5ece995592eea8f4df227e0ec6e520d57"
+source = "git+https://github.com/tomaka/glium#32f6372571296b04f067e9fc8d030681940aad3c"
 dependencies = [
  "glium 0.0.2 (git+https://github.com/tomaka/glium)",
 ]
@@ -93,7 +99,7 @@ dependencies = [
 [[package]]
 name = "image"
 version = "0.2.0-alpha.2"
-source = "git+https://github.com/PistonDevelopers/image#8572db852986436ecbbf6a6ca57a943b596adeb7"
+source = "git+https://github.com/PistonDevelopers/image#e715541acc078ec4cc32a27cec685cffd512238d"
 
 [[package]]
 name = "khronos_api"
@@ -104,4 +110,12 @@ source = "git+http://github.com/bjz/gl-rs#157de977e025d3069f4219c713b071bacf8ed2
 name = "rust-xml"
 version = "0.1.2-pre"
 source = "git+https://github.com/netvl/rust-xml#2d9df3267aeaa4d442e1e19a4dfed733cb1397ed"
+
+[[package]]
+name = "time"
+version = "0.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "gcc 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 

@@ -11,3 +11,6 @@ git = "https://github.com/tomaka/glium"
 
 [dependencies.glium_macros]
 git = "https://github.com/tomaka/glium"
+
+[dependencies]
+time = "*"
