@@ -113,12 +113,11 @@ fn main() {
         // polling and handling the events received by the window
         for event in display.poll_events().into_iter() {
             use glutin::Event;
-            use glutin::ElementState;
-            use glutin::VirtualKeyCode;
+            use glutin::ElementState::Pressed;
+            use glutin::VirtualKeyCode::Escape;
 
             match event {
-                Event::Closed | 
-                    Event::KeyboardInput(ElementState::Pressed,_,Some(VirtualKeyCode::Escape)) => break 'main,
+                Event::Closed | Event::KeyboardInput(Pressed,_,Some(Escape)) => break 'main,
                 _ => ()
             }
         }

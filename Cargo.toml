@@ -3,8 +3,9 @@ name = "grow"
 version = "0.0.1"
 authors = ["Felix Rath <felixr@archlinux.info>", "Felix Dietze <felix@beerleader.net>"]
 
-# [dependencies.nphysics2df32]
+# [dependencies.nphysics]
 # git = "https://github.com/sebcrozet/nphysics"
+# features = ["2df32"]
 
 [dependencies.glium]
 git = "https://github.com/tomaka/glium"
